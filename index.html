@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watchman's Alert - Depths to Heights</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #d4822f;
+            --secondary: #f4a460;
+            --danger: #e74c3c;
+            --safe: #27ae60;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gold: #ffd700;
+            --amber: #ffbf00;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ecf0f1;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Pulsing emergency indicator */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.9; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px var(--amber); }
+            50% { box-shadow: 0 0 20px var(--amber), 0 0 30px var(--gold); }
+            100% { box-shadow: 0 0 5px var(--amber); }
+        }
+
+        .emergency-header {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            padding: 15px;
+            text-align: center;
+            animation: pulse 2s infinite;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .emergency-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .emergency-btn {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: 700;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            animation: glow 2s infinite;
+            transition: transform 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .emergency-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .emergency-btn:active {
+            transform: scale(0.98);
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .screen {
+            display: none;
+            animation: slideIn 0.5s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from { 
+                opacity: 0; 
+                transform: translateX(-20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateX(0); 
+            }
+        }
+
+        /* Hook Screen - Unique watchman tower design */
+        .hook-container {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .watchman-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 3s infinite;
+        }
+
+        .hook-verse {
+            background: rgba(255, 191, 0, 0.1);
+            border-left: 4px solid var(--amber);
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-style: italic;
+            text-align: left;
+        }
+
+        .hook-verse cite {
+            display: block;
+            text-align: right;
+            margin-top: 10px;
+            color: var(--secondary);
+            font-size: 14px;
+        }
+
+        /* Crisis Assessment Cards */
+        .crisis-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 191, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .crisis-card:hover {
+            background: rgba(255, 191, 0, 0.1);
+            border-color: var(--amber);
+            transform: translateY(-2px);
+        }
+
+        .crisis-card.urgent {
+            border-color: var(--danger);
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .crisis-card h3 {
+            color: var(--amber);
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .crisis-card p {
+            color: #bdc3c7;
+            line-height: 1.6;
+        }
+
+        /* Safety Plan Section */
+        .safety-section {
+            background: rgba(39, 174, 96, 0.1);
+            border: 2px solid var(--safe);
+            border-radius: 10px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+
+        .safety-section h2 {
+            color: var(--safe);
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+
+        .safety-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 3px solid var(--safe);
+        }
+
+        .safety-item h4 {
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        /* Prayer Cards */
+        .prayer-card {
+            background: linear-gradient(135deg, rgba(212, 130, 47, 0.1) 0%, rgba(255, 191, 0, 0.05) 100%);
+            border: 1px solid var(--amber);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .prayer-text {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #ecf0f1;
+            margin: 15px 0;
+            font-style: italic;
+        }
+
+        .prayer-action {
+            background: var(--amber);
+            color: var(--dark);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .prayer-action:hover {
+            background: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        /* Reasons to Live Grid */
+        .reasons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .reason-card {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 191, 0, 0.05) 100%);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .reason-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--gold);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .reason-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .reason-title {
+            color: var(--amber);
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .reason-verse {
+            font-size: 12px;
+            color: #95a5a6;
+            font-style: italic;
+        }
+
+        /* Contact List */
+        .contact-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 191, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .contact-info h4 {
+            color: var(--amber);
+            margin-bottom: 5px;
+        }
+
+        .contact-info p {
+            color: #95a5a6;
+            font-size: 14px;
+        }
+
+        .call-btn {
+            background: var(--safe);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .call-btn:hover {
+            background: #229954;
+            transform: scale(1.05);
+        }
+
+        /* Scripture Display */
+        .scripture-display {
+            background: linear-gradient(135deg, rgba(52, 73, 94, 0.3) 0%, rgba(44, 62, 80, 0.2) 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .scripture-text {
+            font-size: 20px;
+            line-height: 1.8;
+            color: var(--light);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .scripture-ref {
+            text-align: center;
+            color: var(--amber);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+            border-top: 2px solid var(--amber);
+            padding: 10px;
+            display: flex;
+            justify-content: space-around;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            background: none;
+            border: 1px solid var(--amber);
+            color: var(--amber);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .nav-item:hover {
+            background: var(--amber);
+            color: var(--dark);
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 3000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 2px solid var(--amber);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--amber);
+            padding-bottom: 15px;
+        }
+
+        .modal-header h2 {
+            color: var(--amber);
+            font-size: 24px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--amber);
+            font-size: 30px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Breathing Exercise */
+        .breathing-circle {
+            width: 200px;
+            height: 200px;
+            border: 3px solid var(--amber);
+            border-radius: 50%;
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--amber);
+            animation: breathe 4s infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* Audio Toggle */
+        .audio-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--amber);
+            color: var(--dark);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 101;
+            transition: all 0.3s;
+        }
+
+        .audio-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .audio-toggle.muted {
+            background: #7f8c8d;
+        }
+
+        /* Input Styles */
+        .input-field {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--amber);
+            border-radius: 10px;
+            color: var(--light);
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .emergency-header h1 {
+                font-size: 20px;
+            }
+            
+            .watchman-icon {
+                font-size: 60px;
+            }
+            
+            .reasons-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-item {
+                font-size: 10px;
+                padding: 6px 12px;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 191, 0, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--amber);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .crisis-note {
+            background: rgba(255, 191, 0, 0.1);
+            border: 1px solid var(--amber);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .crisis-note strong {
+            color: var(--amber);
+        }
+    </style>
+</head>
+<body>
+    <!-- Audio Toggle -->
+    <div class="audio-toggle" id="audioToggle" onclick="toggleAudio()">
+        <span id="audioIcon">🔊</span>
+    </div>
+
+    <!-- Emergency Header -->
+    <div class="emergency-header">
+        <h1>⚠️ WATCHMAN'S ALERT ⚠️</h1>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Hook Screen -->
+        <div class="screen active" id="hookScreen">
+            <div class="hook-container">
+                <div class="watchman-icon">🛡️</div>
+                <h2>You Are Not Alone</h2>
+                <div class="hook-verse">
+                    "Son of man, I have made you a watchman for the people... When I say to the wicked, 'You will surely die,' and you do not warn them... I will hold you accountable. But if you do warn them... you will have saved yourself."
+                    <cite>- Ezekiel 3:17-19</cite>
+                </div>
+                <button class="emergency-btn" onclick="showScreen('crisisAssessment')">
+                    I NEED HELP NOW
+                </button>
+                <button class="prayer-action" onclick="showScreen('mainMenu')">
+                    Enter Quietly
+                </button>
+            </div>
+        </div>
+
+        <!-- Crisis Assessment -->
+        <div class="screen" id="crisisAssessment">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 20px;">How are you feeling right now?</h2>
+            
+            <div class="crisis-card urgent" onclick="showScreen('immediateDanger')">
+                <h3>🚨 In Immediate Danger</h3>
+                <p>I'm thinking about ending my life right now or have a plan</p>
+            </div>
+
+            <div class="crisis-card" onclick="showScreen('darkThoughts')">
+                <h3>🌑 Having Dark Thoughts</h3>
+                <p>I'm struggling with thoughts of death but not in immediate danger</p>
+            </div>
+
+            <div class="crisis-card" onclick="showScreen('needSupport')">
+                <h3>💔 Need Support</h3>
+                <p>I'm overwhelmed and need someone to talk to</p>
+            </div>
+
+            <div class="crisis-card" onclick="showScreen('helpingOthers')">
+                <h3>🤝 Helping Someone Else</h3>
+                <p>I'm worried about someone who may be in crisis</p>
+            </div>
+        </div>
+
+        <!-- Immediate Danger Screen -->
+        <div class="screen" id="immediateDanger">
+            <button class="emergency-btn" onclick="callEmergency()">
+                📞 CALL EMERGENCY NOW
+            </button>
+
+            <div class="safety-section">
+                <h2>⚡ IMMEDIATE SAFETY STEPS</h2>
+                <div class="safety-item">
+                    <h4>1. You are precious to God</h4>
+                    <p>Your life has immeasurable value. God knows your pain.</p>
+                </div>
+                <div class="safety-item">
+                    <h4>2. Remove any means</h4>
+                    <p>Move away from anything you could use to harm yourself</p>
+                </div>
+                <div class="safety-item">
+                    <h4>3. Call someone NOW</h4>
+                    <p>Reach out to anyone - a friend, family, pastor, or crisis line</p>
+                </div>
+                <div class="safety-item">
+                    <h4>4. Stay with someone</h4>
+                    <p>Don't be alone right now. Go to a public place if needed.</p>
+                </div>
+            </div>
+
+            <div class="scripture-display">
+                <div class="scripture-text">
+                    "The Lord is close to the brokenhearted and saves those who are crushed in spirit."
+                </div>
+                <div class="scripture-ref">Psalm 34:18</div>
+            </div>
+
+            <button class="prayer-action" onclick="showScreen('emergencyPrayers')">
+                🙏 Emergency Prayers
+            </button>
+        </div>
+
+        <!-- Dark Thoughts Screen -->
+        <div class="screen" id="darkThoughts">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 20px;">Valley of the Shadow</h2>
+            
+            <div class="scripture-display">
+                <div class="scripture-text">
+                    "Even though I walk through the valley of the shadow of death, I will fear no evil, for You are with me"
+                </div>
+                <div class="scripture-ref">Psalm 23:4</div>
+            </div>
+
+            <div class="prayer-card">
+                <h3>Breath Prayer for Dark Moments</h3>
+                <div class="breathing-circle" id="breathingCircle">BREATHE</div>
+                <p class="prayer-text">
+                    Inhale: "Lord Jesus"<br>
+                    Hold: "Have mercy"<br>
+                    Exhale: "On me"
+                </p>
+            </div>
+
+            <div class="safety-section">
+                <h2>Your Safety Plan</h2>
+                <div class="safety-item">
+                    <h4>Warning Signs I Notice:</h4>
+                    <input type="text" class="input-field" placeholder="What tells me I'm struggling?" />
+                </div>
+                <div class="safety-item">
+                    <h4>Coping Strategies:</h4>
+                    <input type="text" class="input-field" placeholder="What helps me feel better?" />
+                </div>
+                <div class="safety-item">
+                    <h4>People I Can Call:</h4>
+                    <input type="text" class="input-field" placeholder="Who can I reach out to?" />
+                </div>
+                <div class="safety-item">
+                    <h4>My Reasons to Live:</h4>
+                    <input type="text" class="input-field" placeholder="What keeps me going?" />
+                </div>
+            </div>
+
+            <button class="prayer-action" onclick="showScreen('reasonsToLive')">
+                ✨ See Reasons to Live
+            </button>
+        </div>
+
+        <!-- Need Support Screen -->
+        <div class="screen" id="needSupport">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 20px;">You're Not Alone</h2>
+            
+            <div class="contact-item">
+                <div class="contact-info">
+                    <h4>Crisis Helpline</h4>
+                    <p>24/7 Support Available</p>
+                </div>
+                <button class="call-btn" onclick="alert('Contact your local crisis helpline')">CALL</button>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-info">
+                    <h4>Text Support</h4>
+                    <p>Text "HELP" for support</p>
+                </div>
+                <button class="call-btn" onclick="alert('Text support available')">TEXT</button>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-info">
+                    <h4>Prayer Warriors</h4>
+                    <p>Request prayer support</p>
+                </div>
+                <button class="call-btn" onclick="showScreen('prayerRequest')">PRAY</button>
+            </div>
+
+            <div class="prayer-card">
+                <h3>Right Now Prayer</h3>
+                <p class="prayer-text">
+                    God, I can't see the way forward.<br>
+                    The darkness feels overwhelming.<br>
+                    Please send Your light.<br>
+                    Send Your people.<br>
+                    Send Your hope.<br>
+                    I choose to hold on one more day.<br>
+                    Amen.
+                </p>
+            </div>
+        </div>
+
+        <!-- Helping Others Screen -->
+        <div class="screen" id="helpingOthers">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 20px;">Being a Watchman</h2>
+            
+            <div class="safety-section">
+                <h2>Warning Signs to Watch For</h2>
+                <div class="safety-item">
+                    <h4>Words</h4>
+                    <p>Talking about death, being a burden, having no purpose</p>
+                </div>
+                <div class="safety-item">
+                    <h4>Actions</h4>
+                    <p>Withdrawing, giving away possessions, saying goodbye</p>
+                </div>
+                <div class="safety-item">
+                    <h4>Feelings</h4>
+                    <p>Hopelessness, trapped, unbearable pain, mood swings</p>
+                </div>
+            </div>
+
+            <div class="prayer-card">
+                <h3>How to Help</h3>
+                <p style="text-align: left; padding: 10px;">
+                    ✓ Ask directly: "Are you thinking about suicide?"<br>
+                    ✓ Listen without judgment<br>
+                    ✓ Stay with them<br>
+                    ✓ Help them connect to resources<br>
+                    ✓ Follow up regularly<br>
+                    ✓ Pray with and for them
+                </p>
+            </div>
+
+            <button class="emergency-btn" onclick="showScreen('crisisResources')">
+                Get Help for Them Now
+            </button>
+        </div>
+
+        <!-- Main Menu -->
+        <div class="screen" id="mainMenu">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 30px;">Watchman's Resources</h2>
+            
+            <div class="crisis-card" onclick="showScreen('emergencyPrayers')">
+                <h3>🙏 Emergency Prayers</h3>
+                <p>Immediate spiritual support for crisis moments</p>
+            </div>
+
+            <div class="crisis-card" onclick="showScreen('reasonsToLive')">
+                <h3>💛 Reasons to Live</h3>
+                <p>Biblical reminders of your worth and purpose</p>
+            </div>
+
+            <div class="crisis-card" onclick="showScreen('safetyPlan')">
+                <h3>🛡️ Create Safety Plan</h3>
+                <p>Build your personal crisis prevention plan</p>
+            </div>
+
+            <div class="crisis-card" onclick="showScreen('scriptureWeapons')">
+                <h3>⚔️ Scripture Weapons</h3>
+                <p>Biblical verses to fight dark thoughts</p>
+            </div>
+
+            <div class="crisis-card" onclick="showScreen('crisisResources')">
+                <h3>📞 Crisis Resources</h3>
+                <p>Emergency contacts and support services</p>
+            </div>
+        </div>
+
+        <!-- Emergency Prayers Screen -->
+        <div class="screen" id="emergencyPrayers">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 20px;">Emergency Prayers</h2>
+            
+            <div class="prayer-card">
+                <h3>When I Can't Hold On</h3>
+                <p class="prayer-text">
+                    Jesus, I'm at the end.<br>
+                    I have no strength left.<br>
+                    Be my strength.<br>
+                    Hold me when I can't hold on.<br>
+                    Carry me through this hour.<br>
+                    I trust You with my pain.<br>
+                    Amen.
+                </p>
+            </div>
+
+            <div class="prayer-card">
+                <h3>For One More Day</h3>
+                <p class="prayer-text">
+                    God, give me grace for one more day.<br>
+                    Not a week, not a month,<br>
+                    Just today.<br>
+                    Help me see one small light,<br>
+                    Feel one moment of peace,<br>
+                    Find one reason to continue.<br>
+                    Amen.
+                </p>
+            </div>
+
+            <div class="prayer-card">
+                <h3>Against the Darkness</h3>
+                <p class="prayer-text">
+                    In the name of Jesus,<br>
+                    I reject the lie that I'm alone.<br>
+                    I reject the lie that I'm worthless.<br>
+                    I reject the lie that there's no hope.<br>
+                    I claim the truth that I am loved,<br>
+                    I am valued,<br>
+                    I have a purpose.<br>
+                    Amen.
+                </p>
+            </div>
+        </div>
+
+        <!-- Reasons to Live Screen -->
+        <div class="screen" id="reasonsToLive">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 20px;">Your Life Matters Because...</h2>
+            
+            <div class="reasons-grid">
+                <div class="reason-card" onclick="expandReason('loved')">
+                    <div class="reason-icon">❤️</div>
+                    <div class="reason-title">You Are Loved</div>
+                    <div class="reason-verse">Romans 8:38-39</div>
+                </div>
+
+                <div class="reason-card" onclick="expandReason('purpose')">
+                    <div class="reason-icon">🎯</div>
+                    <div class="reason-title">You Have Purpose</div>
+                    <div class="reason-verse">Jeremiah 29:11</div>
+                </div>
+
+                <div class="reason-card" onclick="expandReason('chosen')">
+                    <div class="reason-icon">👑</div>
+                    <div class="reason-title">You Are Chosen</div>
+                    <div class="reason-verse">1 Peter 2:9</div>
+                </div>
+
+                <div class="reason-card" onclick="expandReason('valuable')">
+                    <div class="reason-icon">💎</div>
+                    <div class="reason-title">You Are Valuable</div>
+                    <div class="reason-verse">Matthew 10:31</div>
+                </div>
+
+                <div class="reason-card" onclick="expandReason('needed')">
+                    <div class="reason-icon">🤲</div>
+                    <div class="reason-title">You Are Needed</div>
+                    <div class="reason-verse">1 Corinthians 12:27</div>
+                </div>
+
+                <div class="reason-card" onclick="expandReason('eternal')">
+                    <div class="reason-icon">♾️</div>
+                    <div class="reason-title">Eternal Perspective</div>
+                    <div class="reason-verse">2 Corinthians 4:17</div>
+                </div>
+            </div>
+
+            <div class="scripture-display" id="reasonDetail" style="display: none;">
+                <div class="scripture-text" id="reasonText"></div>
+                <div class="scripture-ref" id="reasonRef"></div>
+            </div>
+        </div>
+
+        <!-- Safety Plan Screen -->
+        <div class="screen" id="safetyPlan">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 20px;">My Safety Plan</h2>
+            
+            <div class="safety-section">
+                <h2>Biblical Identity Reminders</h2>
+                <div class="safety-item">
+                    <h4>I am a child of God</h4>
+                    <p>"See what great love the Father has lavished on us" - 1 John 3:1</p>
+                </div>
+                <div class="safety-item">
+                    <h4>I am never alone</h4>
+                    <p>"Never will I leave you; never will I forsake you" - Hebrews 13:5</p>
+                </div>
+                <div class="safety-item">
+                    <h4>I am being renewed</h4>
+                    <p>"He who began a good work in you will complete it" - Philippians 1:6</p>
+                </div>
+            </div>
+
+            <div class="safety-section">
+                <h2>My Action Steps</h2>
+                <div class="safety-item">
+                    <textarea class="input-field" placeholder="Step 1: When I notice warning signs, I will..." rows="2"></textarea>
+                </div>
+                <div class="safety-item">
+                    <textarea class="input-field" placeholder="Step 2: Activities that help me cope..." rows="2"></textarea>
+                </div>
+                <div class="safety-item">
+                    <textarea class="input-field" placeholder="Step 3: People I will reach out to..." rows="2"></textarea>
+                </div>
+                <div class="safety-item">
+                    <textarea class="input-field" placeholder="Step 4: Professional help I can access..." rows="2"></textarea>
+                </div>
+            </div>
+
+            <button class="prayer-action" onclick="saveSafetyPlan()">
+                💾 Save My Plan
+            </button>
+        </div>
+
+        <!-- Scripture Weapons Screen -->
+        <div class="screen" id="scriptureWeapons">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 20px;">Scripture Weapons Against Darkness</h2>
+            
+            <div class="scripture-display">
+                <div class="scripture-text">
+                    "No weapon formed against you shall prosper"
+                </div>
+                <div class="scripture-ref">Isaiah 54:17</div>
+            </div>
+
+            <div class="scripture-display">
+                <div class="scripture-text">
+                    "The Lord will fight for you; you need only to be still"
+                </div>
+                <div class="scripture-ref">Exodus 14:14</div>
+            </div>
+
+            <div class="scripture-display">
+                <div class="scripture-text">
+                    "He heals the brokenhearted and binds up their wounds"
+                </div>
+                <div class="scripture-ref">Psalm 147:3</div>
+            </div>
+
+            <div class="scripture-display">
+                <div class="scripture-text">
+                    "Cast all your anxiety on Him because He cares for you"
+                </div>
+                <div class="scripture-ref">1 Peter 5:7</div>
+            </div>
+
+            <button class="prayer-action" onclick="getNewScripture()">
+                🔄 More Scripture
+            </button>
+        </div>
+
+        <!-- Crisis Resources Screen -->
+        <div class="screen" id="crisisResources">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 20px;">Crisis Resources</h2>
+            
+            <div class="crisis-note">
+                <strong>⚠️ IMMEDIATE HELP ⚠️</strong><br>
+                If you are in crisis, please contact your local emergency services or crisis helpline immediately.
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-info">
+                    <h4>Emergency Services</h4>
+                    <p>For immediate danger - Call your local emergency number</p>
+                </div>
+                <button class="call-btn" onclick="showEmergencyInfo()">INFO</button>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-info">
+                    <h4>Global Crisis Helplines</h4>
+                    <p>24/7 support in your region</p>
+                </div>
+                <button class="call-btn" onclick="showGlobalHelplines()">VIEW</button>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-info">
+                    <h4>Crisis Text Support</h4>
+                    <p>Text-based crisis intervention</p>
+                </div>
+                <button class="call-btn" onclick="showTextSupport()">INFO</button>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-info">
+                    <h4>Online Crisis Chat</h4>
+                    <p>Web-based support services</p>
+                </div>
+                <button class="call-btn" onclick="showOnlineSupport()">ACCESS</button>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-info">
+                    <h4>Church Support Network</h4>
+                    <p>Faith-based crisis support</p>
+                </div>
+                <button class="call-btn" onclick="showChurchSupport()">FIND</button>
+            </div>
+
+            <div class="contact-item">
+                <div class="contact-info">
+                    <h4>Professional Christian Counseling</h4>
+                    <p>Licensed faith-based therapists</p>
+                </div>
+                <button class="call-btn" onclick="showCounselingInfo()">LEARN</button>
+            </div>
+
+            <div class="prayer-card">
+                <h3>Remember</h3>
+                <p class="prayer-text">
+                    Reaching out for help is not weakness - it's wisdom.<br>
+                    God often sends His help through His people.<br>
+                    You deserve support and care.<br>
+                    Your life is worth fighting for.
+                </p>
+            </div>
+        </div>
+
+        <!-- Prayer Request Screen -->
+        <div class="screen" id="prayerRequest">
+            <h2 style="text-align: center; color: var(--amber); margin-bottom: 20px;">Prayer Request</h2>
+            
+            <div class="prayer-card">
+                <h3>Share Your Burden</h3>
+                <textarea class="input-field" rows="5" placeholder="Share your prayer request (optional)..."></textarea>
+                <button class="prayer-action" onclick="submitPrayerRequest()">
+                    📧 Send to Prayer Warriors
+                </button>
+            </div>
+
+            <div class="scripture-display">
+                <div class="scripture-text">
+                    "Therefore confess your sins to each other and pray for each other so that you may be healed. The prayer of a righteous person is powerful and effective."
+                </div>
+                <div class="scripture-ref">James 5:16</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-item" onclick="showScreen('mainMenu')">🏠 HOME</button>
+        <button class="nav-item" onclick="showScreen('crisisAssessment')">🚨 CRISIS</button>
+        <button class="nav-item" onclick="showInfo()">ℹ️ INFO</button>
+        <button class="nav-item" onclick="showAbout()">❤️ ABOUT</button>
+    </div>
+
+    <!-- Info Modal -->
+    <div class="modal" id="infoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>About Watchman's Alert</h2>
+                <button class="close-btn" onclick="closeModal('infoModal')">×</button>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber); margin-bottom: 10px;">What is Watchman's Alert?</h3>
+                <p style="line-height: 1.6;">A 24/7 biblical crisis intervention app based on Ezekiel 3:17. Provides immediate spiritual support, emergency prayers, safety planning, and connection to crisis resources.</p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber); margin-bottom: 10px;">How to Use</h3>
+                <ul style="line-height: 1.8; padding-left: 20px;">
+                    <li>If in immediate danger, use emergency buttons</li>
+                    <li>Access crisis prayers and scripture anytime</li>
+                    <li>Create and save your safety plan</li>
+                    <li>Find reasons to live rooted in biblical truth</li>
+                    <li>Connect with crisis resources and support</li>
+                </ul>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber); margin-bottom: 10px;">Installing on Your Phone</h3>
+                <p><strong>iPhone:</strong> Tap share button, then "Add to Home Screen"</p>
+                <p><strong>Android:</strong> Tap menu (3 dots), then "Add to Home Screen"</p>
+            </div>
+
+            <div class="crisis-note">
+                <strong>Crisis Support:</strong><br>
+                If you are in crisis, please contact your local helpline for immediate support.
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div class="modal" id="aboutModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Depths to Heights</h2>
+                <button class="close-btn" onclick="closeModal('aboutModal')">×</button>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber); margin-bottom: 10px;">Our Mission</h3>
+                <p style="line-height: 1.6;">Standing as watchmen for those in crisis, providing biblical hope and practical support in the darkest moments.</p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber); margin-bottom: 10px;">Created By</h3>
+                <p><strong>Made by Justin</strong><br>
+                Depths to Heights<br>
+                <a href="https://depthstoheights.org" style="color: var(--amber);">depthstoheights.org</a><br>
+                <a href="mailto:depthstoheights@gmail.com" style="color: var(--amber);">depthstoheights@gmail.com</a></p>
+            </div>
+
+            <div style="background: rgba(255, 191, 0, 0.1); padding: 20px; border-radius: 10px; text-align: center; margin-top: 20px;">
+                <h3 style="color: var(--amber);">Support This Work</h3>
+                <p>If this app has helped you, consider supporting Depths to Heights. Your donation helps us create more free crisis intervention tools.</p>
+                <button class="prayer-action" onclick="alert('PayPal donation link will go here')">
+                    💛 Donate via PayPal
+                </button>
+            </div>
+
+            <div class="crisis-note">
+                <strong>Remember:</strong><br>
+                You are loved. You matter. Help is available.
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Info Modal -->
+    <div class="modal" id="emergencyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Emergency Services Information</h2>
+                <button class="close-btn" onclick="closeModal('emergencyModal')">×</button>
+            </div>
+            
+            <div class="crisis-note">
+                <strong>⚠️ For Immediate Life-Threatening Emergency ⚠️</strong>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber);">Common Emergency Numbers Worldwide:</h3>
+                <ul style="line-height: 2; padding: 20px;">
+                    <li><strong>USA/Canada:</strong> 911</li>
+                    <li><strong>UK/EU:</strong> 999 or 112</li>
+                    <li><strong>Australia:</strong> 000</li>
+                    <li><strong>New Zealand:</strong> 111</li>
+                    <li><strong>South Africa:</strong> 10111</li>
+                    <li><strong>India:</strong> 112</li>
+                    <li><strong>Japan:</strong> 119</li>
+                    <li><strong>China:</strong> 120</li>
+                    <li><strong>Brazil:</strong> 192</li>
+                    <li><strong>Mexico:</strong> 911</li>
+                </ul>
+                <p style="text-align: center; color: var(--amber);">
+                    <strong>If your country is not listed, search online for your local emergency number</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Helplines Modal -->
+    <div class="modal" id="helplinesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Global Crisis Helplines</h2>
+                <button class="close-btn" onclick="closeModal('helplinesModal')">×</button>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber);">24/7 Crisis Support by Region:</h3>
+                <div style="max-height: 400px; overflow-y: auto; padding: 10px;">
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <h4>International Association for Suicide Prevention</h4>
+                            <p>Global directory of crisis centers</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <h4>Befrienders Worldwide</h4>
+                            <p>Emotional support in 32 countries</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <h4>Crisis Text Line</h4>
+                            <p>Text HOME to 741741 (US, UK, Canada, Ireland)</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <h4>Samaritans</h4>
+                            <p>116 123 (UK and Ireland)</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <h4>Lifeline</h4>
+                            <p>13 11 14 (Australia)</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-info">
+                            <h4>988 Suicide & Crisis Lifeline</h4>
+                            <p>Call or text 988 (USA)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crisis-note">
+                <strong>Note:</strong> Search online for "[your country] suicide prevention hotline" to find local support.
+            </div>
+        </div>
+    </div>
+
+    <!-- Text Support Modal -->
+    <div class="modal" id="textSupportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Crisis Text Support</h2>
+                <button class="close-btn" onclick="closeModal('textSupportModal')">×</button>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber);">Text-Based Crisis Support:</h3>
+                <ul style="line-height: 2; padding: 20px;">
+                    <li><strong>USA:</strong> Text HOME to 741741</li>
+                    <li><strong>UK:</strong> Text SHOUT to 85258</li>
+                    <li><strong>Canada:</strong> Text TALK to 686868</li>
+                    <li><strong>Ireland:</strong> Text HELLO to 50808</li>
+                </ul>
+            </div>
+
+            <div class="prayer-card">
+                <h3>Why Text Support?</h3>
+                <p style="text-align: left;">
+                    ✓ Available 24/7<br>
+                    ✓ Free and confidential<br>
+                    ✓ No phone call needed<br>
+                    ✓ Trained crisis counselors<br>
+                    ✓ Support in your language
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Online Support Modal -->
+    <div class="modal" id="onlineSupportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Online Crisis Support</h2>
+                <button class="close-btn" onclick="closeModal('onlineSupportModal')">×</button>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber);">Web-Based Support Services:</h3>
+                <div class="contact-item">
+                    <div class="contact-info">
+                        <h4>IMAlive.org</h4>
+                        <p>Live online crisis chat</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-info">
+                        <h4>7 Cups</h4>
+                        <p>Free emotional support chat</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-info">
+                        <h4>BetterHelp</h4>
+                        <p>Professional online counseling</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-info">
+                        <h4>SAMHSA National Helpline</h4>
+                        <p>Mental health treatment referral</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="crisis-note">
+                <strong>Remember:</strong> Online support is available 24/7. You don't have to face this alone.
+            </div>
+        </div>
+    </div>
+
+    <!-- Church Support Modal -->
+    <div class="modal" id="churchSupportModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Church Support Networks</h2>
+                <button class="close-btn" onclick="closeModal('churchSupportModal')">×</button>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber);">Finding Faith-Based Support:</h3>
+                <div class="prayer-card">
+                    <h3>How to Find Help</h3>
+                    <p style="text-align: left; line-height: 1.8;">
+                        1. Contact your local church pastor<br>
+                        2. Ask about prayer teams or support groups<br>
+                        3. Look for Stephen Ministries in your area<br>
+                        4. Search for Celebrate Recovery groups<br>
+                        5. Find Christian crisis counseling centers<br>
+                        6. Connect with online prayer communities
+                    </p>
+                </div>
+
+                <div class="contact-item">
+                    <div class="contact-info">
+                        <h4>Focus on the Family</h4>
+                        <p>Christian counseling referrals</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-info">
+                        <h4>American Association of Christian Counselors</h4>
+                        <p>Find certified Christian counselors</p>
+                    </div>
+                </div>
+                <div class="contact-item">
+                    <div class="contact-info">
+                        <h4>New Life Ministries</h4>
+                        <p>Christian mental health support</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Counseling Info Modal -->
+    <div class="modal" id="counselingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Professional Christian Counseling</h2>
+                <button class="close-btn" onclick="closeModal('counselingModal')">×</button>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <h3 style="color: var(--amber);">Finding a Christian Counselor:</h3>
+                <div class="prayer-card">
+                    <p style="text-align: left; line-height: 1.8;">
+                        <strong>What to Look For:</strong><br>
+                        ✓ Licensed mental health professional<br>
+                        ✓ Integration of faith and therapy<br>
+                        ✓ Experience with crisis intervention<br>
+                        ✓ Respects your spiritual beliefs<br>
+                        ✓ Evidence-based treatment approaches
+                    </p>
+                </div>
+
+                <div class="safety-section">
+                    <h2>Questions to Ask:</h2>
+                    <div class="safety-item">
+                        <p>• Are you a licensed therapist?</p>
+                        <p>• How do you integrate faith into therapy?</p>
+                        <p>• Do you have crisis intervention training?</p>
+                        <p>• What is your approach to suicidal ideation?</p>
+                        <p>• Do you offer emergency sessions?</p>
+                    </div>
+                </div>
+
+                <div class="crisis-note">
+                    <strong>Remember:</strong> Seeking professional help is wise and biblical. God often works through trained professionals to bring healing.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Audio Management
+        let audioContext;
+        let isPlaying = false;
+
+        function initAudio() {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Create urgent but calming tone
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(220, audioContext.currentTime); // A3 note
+            
+            gainNode.gain.setValueAtTime(0.03, audioContext.currentTime); // Very quiet
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start();
+            isPlaying = true;
+        }
+
+        function toggleAudio() {
+            const icon = document.getElementById('audioIcon');
+            const toggle = document.getElementById('audioToggle');
+            
+            if (!audioContext) {
+                initAudio();
+                icon.textContent = '🔊';
+                toggle.classList.remove('muted');
+            } else if (isPlaying) {
+                audioContext.suspend();
+                isPlaying = false;
+                icon.textContent = '🔇';
+                toggle.classList.add('muted');
+            } else {
+                audioContext.resume();
+                isPlaying = true;
+                icon.textContent = '🔊';
+                toggle.classList.remove('muted');
+            }
+        }
+
+        // Screen Navigation
+        function showScreen(screenId) {
+            playClickSound();
+            
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            setTimeout(() => {
+                document.getElementById(screenId).classList.add('active');
+                window.scrollTo(0, 0);
+            }, 100);
+        }
+
+        // Emergency Functions
+        function callEmergency() {
+            if (confirm('This will open your phone dialer to call emergency services. Continue?')) {
+                alert('Please call your local emergency number immediately.');
+            }
+        }
+
+        // Crisis Resource Functions
+        function showEmergencyInfo() {
+            document.getElementById('emergencyModal').classList.add('active');
+        }
+
+        function showGlobalHelplines() {
+            document.getElementById('helplinesModal').classList.add('active');
+        }
+
+        function showTextSupport() {
+            document.getElementById('textSupportModal').classList.add('active');
+        }
+
+        function showOnlineSupport() {
+            document.getElementById('onlineSupportModal').classList.add('active');
+        }
+
+        function showChurchSupport() {
+            document.getElementById('churchSupportModal').classList.add('active');
+        }
+
+        function showCounselingInfo() {
+            document.getElementById('counselingModal').classList.add('active');
+        }
+
+        // Breathing Exercise
+        let breathingInterval;
+        function startBreathing() {
+            const circle = document.getElementById('breathingCircle');
+            if (!circle) return;
+            
+            const phases = ['INHALE', 'HOLD', 'EXHALE', 'HOLD'];
+            let phase = 0;
+            
+            breathingInterval = setInterval(() => {
+                circle.textContent = phases[phase];
+                phase = (phase + 1) % phases.length;
+            }, 2000);
+        }
+
+        // Scripture Weapons
+        const scriptures = [
+            { text: "God is our refuge and strength, an ever-present help in trouble", ref: "Psalm 46:1" },
+            { text: "When you pass through the waters, I will be with you", ref: "Isaiah 43:2" },
+            { text: "The Lord is my rock, my fortress and my deliverer", ref: "Psalm 18:2" },
+            { text: "He will cover you with his feathers, and under his wings you will find refuge", ref: "Psalm 91:4" },
+            { text: "The name of the Lord is a strong tower; the righteous run to it and are safe", ref: "Proverbs 18:10" }
+        ];
+
+        let scriptureIndex = 0;
+        function getNewScripture() {
+            scriptureIndex = (scriptureIndex + 1) % scriptures.length;
+            const displays = document.querySelectorAll('#scriptureWeapons .scripture-display');
+            if (displays.length > 0) {
+                const display = displays[0];
+                display.querySelector('.scripture-text').textContent = scriptures[scriptureIndex].text;
+                display.querySelector('.scripture-ref').textContent = scriptures[scriptureIndex].ref;
+            }
+            playClickSound();
+        }
+
+        // Reasons to Live
+        const reasons = {
+            loved: {
+                text: "Neither death nor life, neither angels nor demons... nor anything else in all creation, will be able to separate us from the love of God",
+                ref: "Romans 8:38-39"
+            },
+            purpose: {
+                text: "For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future",
+                ref: "Jeremiah 29:11"
+            },
+            chosen: {
+                text: "You are a chosen people, a royal priesthood, a holy nation, God's special possession",
+                ref: "1 Peter 2:9"
+            },
+            valuable: {
+                text: "Are not five sparrows sold for two pennies? Yet not one of them is forgotten by God... you are worth more than many sparrows",
+                ref: "Luke 12:6-7"
+            },
+            needed: {
+                text: "Now you are the body of Christ, and each one of you is a part of it",
+                ref: "1 Corinthians 12:27"
+            },
+            eternal: {
+                text: "For our light and momentary troubles are achieving for us an eternal glory that far outweighs them all",
+                ref: "2 Corinthians 4:17"
+            }
+        };
+
+        function expandReason(reasonKey) {
+            const detail = document.getElementById('reasonDetail');
+            const reason = reasons[reasonKey];
+            
+            document.getElementById('reasonText').textContent = reason.text;
+            document.getElementById('reasonRef').textContent = reason.ref;
+            detail.style.display = 'block';
+            
+            playClickSound();
+        }
+
+        // Save Functions
+        function saveSafetyPlan() {
+            const inputs = document.querySelectorAll('#safetyPlan textarea');
+            const plan = [];
+            inputs.forEach(input => {
+                if (input.value) plan.push(input.value);
+            });
+            
+            if (plan.length > 0) {
+                localStorage.setItem('watchmanSafetyPlan', JSON.stringify(plan));
+                alert('Your safety plan has been saved. You can access it anytime.');
+            }
+        }
+
+        function submitPrayerRequest() {
+            alert('Your prayer request has been noted. You are being lifted up in prayer.');
+            showScreen('mainMenu');
+        }
+
+        // Modal Functions
+        function showInfo() {
+            document.getElementById('infoModal').classList.add('active');
+        }
+
+        function showAbout() {
+            document.getElementById('aboutModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Sound Effects
+        function playClickSound() {
+            if (!audioContext || !isPlaying) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+            
+            gainNode.gain.setValueAtTime(0.05, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Start breathing animation when on that screen
+            const observer = new MutationObserver(() => {
+                if (document.getElementById('darkThoughts')?.classList.contains('active')) {
+                    startBreathing();
+                } else {
+                    clearInterval(breathingInterval);
+                }
+            });
+            
+            observer.observe(document.body, { attributes: true, subtree: true });
+        });
+
+        // Modal background click to close
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
