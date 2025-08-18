@@ -1125,7 +1125,7 @@
             <div style="background: rgba(255, 191, 0, 0.1); padding: 20px; border-radius: 10px; text-align: center; margin-top: 20px;">
                 <h3 style="color: var(--amber);">Support This Work</h3>
                 <p>If this app has helped you, consider supporting Depths to Heights. Your donation helps us create more free crisis intervention tools.</p>
-                <button class="prayer-action" onclick="alert('PayPal donation link will go here')">
+                <button class="prayer-action" onclick="window.open('https://www.paypal.com/donate/?hosted_button_id=8GRE7B8C3TP2U', '_blank')">
                     💛 Donate via PayPal
                 </button>
             </div>
@@ -1443,9 +1443,8 @@
 
         // Emergency Functions
         function callEmergency() {
-            if (confirm('This will open your phone dialer to call emergency services. Continue?')) {
-                alert('Please call your local emergency number immediately.');
-            }
+            // Show emergency numbers screen instead of alert
+            showScreen('emergencyModal');
         }
 
         // Crisis Resource Functions
@@ -1558,13 +1557,47 @@
             
             if (plan.length > 0) {
                 localStorage.setItem('watchmanSafetyPlan', JSON.stringify(plan));
-                alert('Your safety plan has been saved. You can access it anytime.');
+                
+                // Show success inline
+                const btn = event.target;
+                const originalText = btn.textContent;
+                const originalBg = btn.style.background;
+                
+                btn.textContent = '✓ Plan Saved Successfully';
+                btn.style.background = 'linear-gradient(135deg, #10b981 0%, #34d399 100%)';
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.style.background = originalBg;
+                }, 2000);
             }
         }
 
         function submitPrayerRequest() {
-            alert('Your prayer request has been noted. You are being lifted up in prayer.');
-            showScreen('mainMenu');
+            const textarea = event.target.parentElement.querySelector('textarea');
+            const request = textarea.value;
+            
+            if (request) {
+                // Save prayer request
+                const prayers = JSON.parse(localStorage.getItem('prayerRequests') || '[]');
+                prayers.push({
+                    request: request,
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem('prayerRequests', JSON.stringify(prayers));
+                
+                // Show confirmation inline
+                const prayerCard = event.target.parentElement;
+                prayerCard.innerHTML = `
+                    <h3>Prayer Request Received</h3>
+                    <p style="color: var(--amber); margin: 20px 0;">
+                        Your prayer request has been noted. You are being lifted up in prayer by the community.
+                    </p>
+                    <button class="prayer-action" onclick="showScreen('mainMenu')">
+                        Return to Resources
+                    </button>
+                `;
+            }
         }
 
         // Modal Functions
